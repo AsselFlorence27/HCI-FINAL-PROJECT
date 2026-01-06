@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YamahaMotor Parts - Aerox & Nmax Components</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-motorcycle"></i>
+                <span>YamahaMotor Parts</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#" data-page="home">Home</a></li>
+                <li><a href="#" data-page="products">Products</a></li>
+                <li><a href="#" data-page="about">About Us</a></li>
+                <li><a href="#" data-page="contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="cart-btn" id="cartBtn" aria-label="Shopping Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Container -->
+    <main id="mainContent" class="main-content">
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Premium Yamaha Motor Parts</h1>
+                    <p>Authentic components for Aerox and Nmax scooters</p>
+                    <button class="btn btn-primary" onclick="navigatePage('products')">Shop Now</button>
+                </div>
+            </div>
+
+            <section class="features">
+                <div class="feature-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Authentic Parts</h3>
+                    <p>100% Original Yamaha Components</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-truck"></i>
+                    <h3>Fast Shipping</h3>
+                    <p>Quick delivery across the region</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Quality Guarantee</h3>
+                    <p>Warranty on all products</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Products Page -->
+        <section id="products-page" class="page">
+            <div class="products-header">
+                <h2>Products</h2>
+                <div class="filter-group">
+                    <select id="modelFilter" class="filter-select">
+                        <option value="">All Models</option>
+                        <option value="aerox">Aerox</option>
+                        <option value="nmax">Nmax</option>
+                    </select>
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="engine">Engine</option>
+                        <option value="suspension">Suspension</option>
+                        <option value="brakes">Brakes</option>
+                        <option value="body">Body Parts</option>
+                        <option value="electrical">Electrical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="products-grid" id="productsGrid">
+                <!-- Product Item -->
+                <div class="product-item">
+                    <div class="product-image" style="background-image: url('${product.image}'); background-size: cover; background-position: center;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <span class="product-price">${product.price}</span>
+                        <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
+                    </div>
+                </div>
+                <!-- End of Product Item -->
+            </div>
+        </section>
+
+        <!-- Product Details Page -->
+        <section id="product-details-page" class="page">
+            <div class="breadcrumb">
+                <a href="#" onclick="navigatePage('products')">Products</a> / <span id="productBreadcrumb"></span>
+            </div>
+            <div class="product-detail-container" id="productDetailContainer">
+                <div class="product-detail-image" style="background-image: url('${product.image}'); background-size: contain; background-position: center; background-repeat: no-repeat; background-color: #f5f5f5;">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <span class="product-price">${product.price}</span>
+                    <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Page -->
+        <section id="about-page" class="page">
+            <div class="about-content">
+                <h2>About YamahaMotor Parts</h2>
+                <p>We are your trusted source for authentic Yamaha motor parts for Aerox and Nmax scooters. With over 10 years of experience, we provide quality components that keep your scooter running smoothly.</p>
+                <div class="about-features">
+                    <div class="about-item">
+                        <h3>Verified Supplier</h3>
+                        <p>Official Yamaha Parts Distributor</p>
+                    </div>
+                    <div class="about-item">
+                        <h3>Expert Support</h3>
+                        <p>Technical assistance available</p>
+                    </div>
+                    <div class="about-item">
+                        <h3>Best Prices</h3>
+                        <p>Competitive pricing guaranteed</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Page -->
+        <section id="contact-page" class="page">
+            <div class="contact-container">
+                <h2>Contact Us</h2>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" name="name" required aria-label="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required aria-label="Your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <input type="text" id="subject" name="subject" required aria-label="Message subject">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" rows="5" required aria-label="Your message"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Cart Modal -->
+        <div id="cartModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Shopping Cart</h2>
+                    <button class="close-btn" onclick="closeCart()" aria-label="Close cart">&times;</button>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart Item -->
+                    <div class="cart-item">
+                        <div class="cart-item-image" style="background-image: url('${item.image}'); background-size: contain; background-position: center; background-color: #f5f5f5;">
+                        </div>
+                        <div class="cart-item-info">
+                            <h3 class="cart-item-name">${item.name}</h3>
+                            <span class="cart-item-price">${item.price}</span>
+                            <button class="btn btn-primary" onclick="removeFromCart(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                    <!-- End of Cart Item -->
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (8%):</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                </div>
+                <div class="cart-actions">
+                    <button class="btn btn-secondary" onclick="closeCart()">Continue Shopping</button>
+                    <button class="btn btn-primary" onclick="navigateToCheckout()">Proceed to Checkout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <section id="checkout-page" class="page">
+            <div class="checkout-container">
+                <div class="checkout-content">
+                    <h2>Checkout</h2>
+                    <form id="checkoutForm" class="checkout-form">
+                        <div class="form-section">
+                            <h3>Shipping Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name *</label>
+                                    <input type="text" id="firstName" name="firstName" required aria-label="First name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name *</label>
+                                    <input type="text" id="lastName" name="lastName" required aria-label="Last name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Address *</label>
+                                <input type="text" id="address" name="address" required aria-label="Street address">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">City *</label>
+                                    <input type="text" id="city" name="city" required aria-label="City">
+                                </div>
+                                <div class="form-group">
+                                    <label for="zipcode">Zip Code *</label>
+                                    <input type="text" id="zipcode" name="zipcode" required aria-label="Zip code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Payment Information</h3>
+                            <div class="form-group">
+                                <label for="cardName">Card Name *</label>
+                                <input type="text" id="cardName" name="cardName" required aria-label="Cardholder name">
+                            </div>
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number *</label>
+                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required aria-label="Card number">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiry">Expiry Date *</label>
+                                    <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required aria-label="Expiry date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV *</label>
+                                    <input type="text" id="cvv" name="cvv" placeholder="123" required aria-label="CVV code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout-actions">
+                            <button type="button" class="btn btn-secondary" onclick="navigatePage('products')">Back to Products</button>
+                            <button type="submit" class="btn btn-success">Complete Purchase</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="checkoutItemsList"></div>
+                    <div class="checkout-totals">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span id="checkoutSubtotal">$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax:</span>
+                            <span id="checkoutTax">$0.00</span>
+                        </div>
+                        <div class="total-row final">
+                            <span>Total:</span>
+                            <span id="checkoutTotal">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Success Page -->
+        <section id="success-page" class="page">
+            <div class="success-container">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Order Placed Successfully!</h2>
+                <p>Thank you for your purchase. Your order has been confirmed.</p>
+                <div class="success-details" id="successDetails"></div>
+                <button class="btn btn-primary" onclick="navigatePage('home')">Return to Home</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About Us</h4>
+                <p>Premium Yamaha motor parts supplier for Aerox and Nmax scooters</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#" onclick="navigatePage('products')">Products</a></li>
+                    <li><a href="#" onclick="navigatePage('about')">About</a></li>
+                    <li><a href="#" onclick="navigatePage('contact')">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p>Email: info@yamahahparts.com</p>
+                <p>Phone: +1-800-YAMAHA-1</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 YamahaMotor Parts. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
