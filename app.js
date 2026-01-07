@@ -281,6 +281,10 @@ function setupEventListeners() {
       e.preventDefault();
       const page = link.dataset.page;
       navigatePage(page);
+      document.querySelectorAll("[data-page]").forEach((a) => {
+  a.classList.toggle("active", a.dataset.page === page)
+})
+
     });
   });
 
