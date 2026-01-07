@@ -810,6 +810,44 @@ function handleContactSubmit(e) {
   if (contactFormEl) contactFormEl.reset();
 }
 
+ 
+function handleContactSubmit(e) {
+  e.preventDefault();
+
+  const nameEl = document.getElementById("name");
+  const subjectEl = document.getElementById("subject");
+  const messageEl = document.getElementById("message");
+
+  // ✅ FIX: define all values properly
+  const name = nameEl ? nameEl.value.trim() : "";
+  const subject = subjectEl ? subjectEl.value.trim() : "";
+  const message = messageEl ? messageEl.value.trim() : "";
+
+  const contactEmailEl =
+    document.getElementById("contactEmail") || document.getElementById("email");
+  const email = contactEmailEl ? contactEmailEl.value.trim() : "";
+
+  // light validation + feedback
+  const missing = [];
+  if (!name) missing.push("name");
+  if (!email) missing.push("contactEmail");
+  if (!subject) missing.push("subject");
+  if (!message) missing.push("message");
+
+  clearErrors(["name", "contactEmail", "subject", "message"]);
+  missing.forEach((id) => setError(id));
+
+  if (missing.length > 0) {
+    showToast("Please fill in all fields", "error");
+    const firstMissing = document.getElementById(missing[0]);
+    if (firstMissing) firstMissing.focus();
+    return;
+  }
+
+  showToast("Message sent successfully! We will contact you soon.");
+  if (contactFormEl) contactFormEl.reset();
+}
+
 
 /* =========================
    UTILITIES (TOAST + VALIDATION + FORMATTING)
