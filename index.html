@@ -4,64 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YamahaMotor Parts - Aerox & Nmax Components</title>
+
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 
 <body>
-  <!-- Navigation -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="logo">
-        <i class="fas fa-motorcycle"></i>
-        <span>YamahaMotor Parts</span>
-      </div>
+  <!-- Skip to content (accessibility) -->
+  <a href="#mainContent" class="skip-link">Skip to main content</a>
 
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
-        <i class="fas fa-bars"></i>
+  <!-- Navigation -->
+  <nav class="navbar" aria-label="Primary navigation">
+    <div class="nav-container">
+      <a class="logo" href="#" data-page="home" aria-label="Go to Home">
+        <i class="fas fa-motorcycle" aria-hidden="true"></i>
+        <span>YamahaMotor Parts</span>
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <i class="fas fa-bars" aria-hidden="true"></i>
       </button>
 
       <ul class="nav-links" id="navLinks">
-        <li><a href="#" data-page="home">Home</a></li>
-        <li><a href="#" data-page="products">Products</a></li>
-        <li><a href="#" data-page="about">About Us</a></li>
-        <li><a href="#" data-page="contact">Contact</a></li>
+        <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="#" class="nav-link" data-page="products">Products</a></li>
+        <li><a href="#" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
       </ul>
 
       <div class="nav-actions">
-        <button class="cart-btn" id="cartBtn" aria-label="Shopping Cart">
-          <i class="fas fa-shopping-cart"></i>
-          <span class="cart-count" id="cartCount">0</span>
+        <button class="cart-btn" id="cartBtn" aria-label="Open shopping cart">
+          <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+          <span class="cart-count" id="cartCount" aria-label="Cart item count">0</span>
         </button>
       </div>
     </div>
   </nav>
 
   <!-- Page Container -->
-  <main id="mainContent" class="main-content">
+  <main id="mainContent" class="main-content" tabindex="-1">
     <!-- Home Page -->
-    <section id="home-page" class="page active">
+    <section id="home-page" class="page active" aria-labelledby="homeTitle">
       <div class="hero">
         <div class="hero-content">
-          <h1>Premium Yamaha Motor Parts</h1>
+          <h1 id="homeTitle">Premium Yamaha Motor Parts</h1>
           <p>Authentic components for Aerox and Nmax scooters</p>
-          <button class="btn btn-primary" onclick="navigatePage('products')">Shop Now</button>
+          <button class="btn btn-primary" type="button" onclick="navigatePage('products')">Shop Now</button>
         </div>
       </div>
 
-      <section class="features">
+      <section class="features" aria-label="Store highlights">
         <div class="feature-card">
-          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle" aria-hidden="true"></i>
           <h3>Authentic Parts</h3>
           <p>100% Original Yamaha Components</p>
         </div>
         <div class="feature-card">
-          <i class="fas fa-truck"></i>
+          <i class="fas fa-truck" aria-hidden="true"></i>
           <h3>Fast Shipping</h3>
           <p>Quick delivery across the region</p>
         </div>
         <div class="feature-card">
-          <i class="fas fa-shield-alt"></i>
+          <i class="fas fa-shield-alt" aria-hidden="true"></i>
           <h3>Quality Guarantee</h3>
           <p>Warranty on all products</p>
         </div>
@@ -69,17 +73,27 @@
     </section>
 
     <!-- Products Page -->
-    <section id="products-page" class="page">
+    <section id="products-page" class="page" aria-labelledby="productsTitle">
       <div class="products-header">
-        <h2>Products</h2>
-        <div class="filter-group">
-          <select id="modelFilter" class="filter-select">
+        <h2 id="productsTitle">Products</h2>
+
+        <div class="filter-group" aria-label="Product filters">
+          <!-- Search (HCI: usability) -->
+          <input
+            id="searchInput"
+            class="filter-input"
+            type="search"
+            placeholder="Search products..."
+            aria-label="Search products"
+          />
+
+          <select id="modelFilter" class="filter-select" aria-label="Filter by model">
             <option value="">All Models</option>
             <option value="aerox">Aerox</option>
             <option value="nmax">Nmax</option>
           </select>
 
-          <select id="categoryFilter" class="filter-select">
+          <select id="categoryFilter" class="filter-select" aria-label="Filter by category">
             <option value="">All Categories</option>
             <option value="engine">Engine</option>
             <option value="suspension">Suspension</option>
@@ -90,31 +104,30 @@
         </div>
       </div>
 
-      <!-- IMPORTANT:
-           Remove the "template" markup that contains ${product...} because HTML cannot read JS template variables.
-           app.js will generate product cards inside this grid. -->
-      <div class="products-grid" id="productsGrid"></div>
+      <div class="products-grid" id="productsGrid" aria-live="polite"></div>
     </section>
 
     <!-- Product Details Page -->
-    <section id="product-details-page" class="page">
-      <div class="breadcrumb">
+    <section id="product-details-page" class="page" aria-labelledby="productDetailsTitle">
+      <div class="breadcrumb" aria-label="Breadcrumb">
         <a href="#" onclick="navigatePage('products'); return false;">Products</a> /
         <span id="productBreadcrumb"></span>
       </div>
 
-      <!-- app.js will render product details inside this container -->
+      <h2 id="productDetailsTitle" style="position:absolute; left:-9999px;">Product Details</h2>
+
       <div class="product-detail-container" id="productDetailContainer"></div>
     </section>
 
     <!-- About Page -->
-    <section id="about-page" class="page">
+    <section id="about-page" class="page" aria-labelledby="aboutTitle">
       <div class="about-content">
-        <h2>About YamahaMotor Parts</h2>
+        <h2 id="aboutTitle">About YamahaMotor Parts</h2>
         <p>
           We are your trusted source for authentic Yamaha motor parts for Aerox and Nmax scooters.
           With over 10 years of experience, we provide quality components that keep your scooter running smoothly.
         </p>
+
         <div class="about-features">
           <div class="about-item">
             <h3>Verified Supplier</h3>
@@ -133,30 +146,29 @@
     </section>
 
     <!-- Contact Page -->
-    <section id="contact-page" class="page">
+    <section id="contact-page" class="page" aria-labelledby="contactTitle">
       <div class="contact-container">
-        <h2>Contact Us</h2>
+        <h2 id="contactTitle">Contact Us</h2>
 
         <form class="contact-form" id="contactForm">
           <div class="form-group">
             <label for="name">Name *</label>
-            <input type="text" id="name" name="name" required aria-label="Your name" />
+            <input type="text" id="name" name="name" required autocomplete="name" />
           </div>
 
-          <!-- FIX: unique id to avoid conflicts with checkout email -->
           <div class="form-group">
             <label for="contactEmail">Email *</label>
-            <input type="email" id="contactEmail" name="email" required aria-label="Your email" />
+            <input type="email" id="contactEmail" name="email" required autocomplete="email" />
           </div>
 
           <div class="form-group">
             <label for="subject">Subject *</label>
-            <input type="text" id="subject" name="subject" required aria-label="Message subject" />
+            <input type="text" id="subject" name="subject" required />
           </div>
 
           <div class="form-group">
             <label for="message">Message *</label>
-            <textarea id="message" name="message" rows="5" required aria-label="Your message"></textarea>
+            <textarea id="message" name="message" rows="5" required></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary">Send Message</button>
@@ -169,10 +181,9 @@
       <div class="modal-content" role="dialog" aria-modal="true" aria-label="Shopping cart">
         <div class="modal-header">
           <h2>Shopping Cart</h2>
-          <button class="close-btn" onclick="closeCart()" aria-label="Close cart">&times;</button>
+          <button class="close-btn" type="button" onclick="closeCart()" aria-label="Close cart">&times;</button>
         </div>
 
-        <!-- app.js will render cart items here -->
         <div class="cart-items" id="cartItems"></div>
 
         <div class="cart-summary">
@@ -191,62 +202,62 @@
         </div>
 
         <div class="cart-actions">
-          <button class="btn btn-secondary" onclick="closeCart()">Continue Shopping</button>
-          <button class="btn btn-primary" onclick="navigateToCheckout()">Proceed to Checkout</button>
+          <button class="btn btn-secondary" type="button" onclick="closeCart()">Continue Shopping</button>
+          <button class="btn btn-primary" type="button" onclick="navigateToCheckout()">Proceed to Checkout</button>
         </div>
       </div>
     </div>
 
     <!-- Checkout Page -->
-    <section id="checkout-page" class="page">
+    <section id="checkout-page" class="page" aria-labelledby="checkoutTitle">
       <div class="checkout-container">
         <div class="checkout-content">
-          <h2>Checkout</h2>
+          <h2 id="checkoutTitle">Checkout</h2>
 
-          <form id="checkoutForm" class="checkout-form">
+          <form id="checkoutForm" class="checkout-form" novalidate>
             <div class="form-section">
               <h3>Shipping Information</h3>
 
               <div class="form-row">
                 <div class="form-group">
                   <label for="firstName">First Name *</label>
-                  <input type="text" id="firstName" name="firstName" required aria-label="First name" />
+                  <input type="text" id="firstName" name="firstName" required autocomplete="given-name" />
                 </div>
                 <div class="form-group">
                   <label for="lastName">Last Name *</label>
-                  <input type="text" id="lastName" name="lastName" required aria-label="Last name" />
+                  <input type="text" id="lastName" name="lastName" required autocomplete="family-name" />
                 </div>
               </div>
 
               <div class="form-group">
                 <label for="address">Address *</label>
-                <input type="text" id="address" name="address" required aria-label="Street address" />
+                <input type="text" id="address" name="address" required autocomplete="street-address" />
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label for="city">City *</label>
-                  <input type="text" id="city" name="city" required aria-label="City" />
+                  <input type="text" id="city" name="city" required autocomplete="address-level2" />
                 </div>
                 <div class="form-group">
                   <label for="zipcode">Zip Code *</label>
-                  <input type="text" id="zipcode" name="zipcode" required aria-label="Zip code" />
+                  <input type="text" id="zipcode" name="zipcode" required inputmode="numeric" autocomplete="postal-code" />
                 </div>
               </div>
 
-              <!-- OPTIONAL but helpful: checkout email (used by JS if present) -->
               <div class="form-group">
-                <label for="checkoutEmail">Email</label>
-                <input type="email" id="checkoutEmail" name="checkoutEmail" aria-label="Checkout email" />
+                <label for="checkoutEmail">Email (optional)</label>
+                <input type="email" id="checkoutEmail" name="checkoutEmail" autocomplete="email" />
               </div>
             </div>
 
             <div class="form-section">
               <h3>Payment Information</h3>
+              <p class="hint">Demo only — no real payment will be processed.</p>
 
               <div class="form-group">
                 <label for="cardName">Card Name *</label>
-                <input type="text" id="cardName" name="cardName" required aria-label="Cardholder name" />
+                <input type="text" id="cardName" name="cardName" required autocomplete="cc-name" />
               </div>
 
               <div class="form-group">
@@ -257,18 +268,19 @@
                   name="cardNumber"
                   placeholder="1234 5678 9012 3456"
                   required
-                  aria-label="Card number"
+                  inputmode="numeric"
+                  autocomplete="cc-number"
                 />
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label for="expiry">Expiry Date *</label>
-                  <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required aria-label="Expiry date" />
+                  <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required autocomplete="cc-exp" />
                 </div>
                 <div class="form-group">
                   <label for="cvv">CVV *</label>
-                  <input type="text" id="cvv" name="cvv" placeholder="123" required aria-label="CVV code" />
+                  <input type="text" id="cvv" name="cvv" placeholder="123" required inputmode="numeric" autocomplete="cc-csc" />
                 </div>
               </div>
             </div>
@@ -280,7 +292,7 @@
           </form>
         </div>
 
-        <div class="order-summary">
+        <div class="order-summary" aria-label="Order summary">
           <h3>Order Summary</h3>
           <div id="checkoutItemsList"></div>
 
@@ -303,21 +315,21 @@
     </section>
 
     <!-- Success Page -->
-    <section id="success-page" class="page">
+    <section id="success-page" class="page" aria-labelledby="successTitle">
       <div class="success-container">
         <div class="success-icon">
-          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle" aria-hidden="true"></i>
         </div>
-        <h2>Order Placed Successfully!</h2>
+        <h2 id="successTitle">Order Placed Successfully!</h2>
         <p>Thank you for your purchase. Your order has been confirmed.</p>
         <div class="success-details" id="successDetails"></div>
-        <button class="btn btn-primary" onclick="navigatePage('home')">Return to Home</button>
+        <button class="btn btn-primary" type="button" onclick="navigatePage('home')">Return to Home</button>
       </div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer" aria-label="Footer">
     <div class="footer-content">
       <div class="footer-section">
         <h4>About Us</h4>
@@ -342,9 +354,9 @@
       <div class="footer-section">
         <h4>Follow Us</h4>
         <div class="social-links">
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
         </div>
       </div>
     </div>
@@ -354,6 +366,26 @@
     </div>
   </footer>
 
+  <!-- Toast (used by improved JS) -->
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
   <script src="app.js"></script>
+
+  <!-- Small accessibility helper styles -->
+  <style>
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 10px;
+      background: #fff;
+      color: #000;
+      padding: 8px 12px;
+      border-radius: 6px;
+      z-index: 9999;
+    }
+    .skip-link:focus {
+      left: 10px;
+    }
+  </style>
 </body>
 </html>
