@@ -1,4 +1,6 @@
-// Product Database
+/* =========================
+   PRODUCT DATABASE (FIXED IMAGE PATHS)
+========================= */
 const products = [
   // Aerox Engine Parts
   {
@@ -29,8 +31,7 @@ const products = [
     category: "engine",
     price: 7500,
     image: "public/dellorto-carburetor-phva.jpg",
-    description:
-      "Premium carb from Italian manufacturer Dellorto. Delivers better fuel atomization and throttle response.",
+    description: "Premium carb from Italian manufacturer Dellorto. Delivers better fuel atomization and throttle response.",
     specs: ["Bore: 12mm", "Manual Choke", "Idle Adjuster: Yes"],
   },
 
@@ -107,7 +108,7 @@ const products = [
     model: "aerox",
     category: "electrical",
     price: 6800,
-    image: "public/stage-6-intake-manifold.jpg", // matches your file name
+    image: "public/yuasa-battery-ytx9-bs.jpg",
     description: "High voltage ignition coil from Stage6. Improves combustion efficiency for better performance.",
     specs: ["Output Voltage: 40kV", "Spark Gap: Optimized", "Cold Start: Enhanced"],
   },
@@ -221,385 +222,529 @@ const products = [
     description: "High-intensity discharge xenon headlight kit. Up to 3x brighter than halogen bulbs.",
     specs: ["Color: 5000K White", "Brightness: 3200 lm", "Ballast: Included"],
   },
-]
+];
 
-// State Management
-let cart = []
+/* =========================
+   STATE
+========================= */
+let cart = [];
 try {
-  cart = JSON.parse(localStorage.getItem("cart")) || []
+  cart = JSON.parse(localStorage.getItem("cart")) || [];
 } catch {
-  cart = []
+  cart = [];
 }
-let currentPage = "home"
-let filteredProducts = [...products]
 
-// DOM Elements
-const navLinks = document.getElementById("navLinks")
-const menuToggle = document.getElementById("menuToggle")
-const cartBtn = document.getElementById("cartBtn")
-const cartModal = document.getElementById("cartModal")
-const contactForm = document.getElementById("contactForm")
-const checkoutForm = document.getElementById("checkoutForm")
-const modelFilter = document.getElementById("modelFilter")
-const categoryFilter = document.getElementById("categoryFilter")
+let currentPage = "home";
+let filteredProducts = [...products];
 
-// Initialize App
+/* =========================
+   DOM ELEMENTS
+========================= */
+const navLinksEl = document.getElementById("navLinks");
+const menuToggleEl = document.getElementById("menuToggle");
+const cartBtnEl = document.getElementById("cartBtn");
+const cartModalEl = document.getElementById("cartModal");
+
+const contactFormEl = document.getElementById("contactForm");
+const checkoutFormEl = document.getElementById("checkoutForm");
+
+const modelFilterEl = document.getElementById("modelFilter");
+const categoryFilterEl = document.getElementById("categoryFilter");
+const searchInputEl = document.getElementById("searchInput");
+
+const toastEl = document.getElementById("toast");
+
+/* =========================
+   INIT
+========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  setupEventListeners()
-  displayProducts()
-  updateCartCount()
-})
+  setupEventListeners();
+  displayProducts();
+  updateCartCount();
+  setActiveNavLink("home");
+});
 
-// Event Listeners
+/* =========================
+   EVENT LISTENERS
+========================= */
 function setupEventListeners() {
-  if (menuToggle) menuToggle.addEventListener("click", toggleMenu)
-  if (cartBtn) cartBtn.addEventListener("click", openCart)
+  if (menuToggleEl) {
+    menuToggleEl.addEventListener("click", toggleMenu);
+  }
+
+  if (cartBtnEl) {
+    cartBtnEl.addEventListener("click", openCart);
+  }
 
   document.querySelectorAll("[data-page]").forEach((link) => {
     link.addEventListener("click", (e) => {
-      e.preventDefault()
-      navigatePage(link.dataset.page)
-    })
-  })
+      e.preventDefault();
+      const page = link.dataset.page;
+      navigatePage(page);
+      document.querySelectorAll("[data-page]").forEach((a) => {
+  a.classList.toggle("active", a.dataset.page === page)
+})
 
-  if (cartModal) {
-    cartModal.addEventListener("click", (e) => {
-      if (e.target === cartModal) closeCart()
-    })
+    });
+  });
+
+  // close cart when clicking outside modal content
+  if (cartModalEl) {
+    cartModalEl.addEventListener("click", (e) => {
+      if (e.target === cartModalEl) closeCart();
+    });
   }
 
-  if (contactForm) {
-    contactForm.addEventListener("submit", handleContactSubmit)
+  // ESC closes cart modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && cartModalEl && cartModalEl.classList.contains("active")) {
+      closeCart();
+    }
+  });
+
+  if (contactFormEl) {
+    contactFormEl.addEventListener("submit", handleContactSubmit);
   }
 
-  if (checkoutForm) {
-    checkoutForm.addEventListener("submit", handleCheckoutSubmit)
+  if (checkoutFormEl) {
+    checkoutFormEl.addEventListener("submit", handleCheckoutSubmit);
+    addLiveValidation(checkoutFormEl);
+    addPaymentFormatters();
   }
 
-  if (modelFilter) modelFilter.addEventListener("change", applyFilters)
-  if (categoryFilter) categoryFilter.addEventListener("change", applyFilters)
+  if (modelFilterEl) modelFilterEl.addEventListener("change", applyFilters);
+  if (categoryFilterEl) categoryFilterEl.addEventListener("change", applyFilters);
+
+  if (searchInputEl) {
+    searchInputEl.addEventListener("input", applyFilters);
+  }
 }
 
-// Navigation
+/* =========================
+   NAVIGATION
+========================= */
 function navigatePage(page) {
-  document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"))
+  document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
 
-  const pageEl = document.getElementById(`${page}-page`)
-  if (pageEl) pageEl.classList.add("active")
+  const pageEl = document.getElementById(`${page}-page`);
+  if (pageEl) pageEl.classList.add("active");
 
-  currentPage = page
+  currentPage = page;
+  setActiveNavLink(page);
 
-  if (navLinks && navLinks.classList.contains("active")) {
-    toggleMenu()
+  // Close mobile nav after click
+  if (navLinksEl && navLinksEl.classList.contains("active")) {
+    toggleMenu(false);
   }
 
   if (page === "products") {
-    displayProducts()
+    displayProducts();
   } else if (page === "checkout") {
-    updateCheckoutSummary()
+    updateCheckoutSummary();
   }
 
-  window.scrollTo(0, 0)
+  // accessibility: move focus to main for screen readers
+  const main = document.getElementById("mainContent");
+  if (main) main.focus();
+
+  window.scrollTo(0, 0);
 }
 
-function toggleMenu() {
-  if (!navLinks) return
-  navLinks.classList.toggle("active")
+function setActiveNavLink(page) {
+  document.querySelectorAll(".nav-link, [data-page]").forEach((a) => {
+    if (a.classList && a.classList.contains("nav-link")) {
+      a.classList.toggle("active", a.dataset.page === page);
+    }
+  });
 }
 
-// Products
+function toggleMenu(forceState) {
+  if (!navLinksEl) return;
+  const willOpen = typeof forceState === "boolean" ? forceState : !navLinksEl.classList.contains("active");
+  navLinksEl.classList.toggle("active", willOpen);
+
+  // aria-expanded
+  if (menuToggleEl) {
+    menuToggleEl.setAttribute("aria-expanded", String(willOpen));
+  }
+}
+
+/* =========================
+   PRODUCTS
+========================= */
 function displayProducts() {
-  const grid = document.getElementById("productsGrid")
-  if (!grid) return
+  const grid = document.getElementById("productsGrid");
+  if (!grid) return;
 
-  grid.innerHTML = ""
+  grid.innerHTML = "";
 
   if (filteredProducts.length === 0) {
-    grid.innerHTML = '<p class="no-products">No products found matching your filters.</p>'
-    return
+    grid.innerHTML = '<p class="no-products">No products found matching your filters.</p>';
+    return;
   }
 
   filteredProducts.forEach((product) => {
-    const card = document.createElement("div")
-    card.className = "product-card"
+    const card = document.createElement("div");
+    card.className = "product-card";
     card.innerHTML = `
       <div class="product-image">
-        <img src="${product.image}" alt="${product.name}">
+        <img src="${product.image}" alt="${escapeHtml(product.name)}">
       </div>
       <div class="product-info">
         <span class="product-model">${product.model.toUpperCase()}</span>
-        <h3 class="product-name">${product.name}</h3>
-        <p class="product-category">${product.category}</p>
+        <h3 class="product-name">${escapeHtml(product.name)}</h3>
+        <p class="product-category">${escapeHtml(product.category)}</p>
         <p class="product-price">₱${product.price.toLocaleString("en-PH")}</p>
         <div class="product-actions">
-          <button class="btn btn-primary btn-small" onclick="viewProduct(${product.id})">View Details</button>
-          <button class="btn btn-secondary btn-small" onclick="quickAddToCart(${product.id})">Add Cart</button>
+          <button class="btn btn-primary btn-small" type="button" onclick="viewProduct(${product.id})">View Details</button>
+          <button class="btn btn-secondary btn-small" type="button" onclick="quickAddToCart(${product.id})">Add Cart</button>
         </div>
       </div>
-    `
-    grid.appendChild(card)
-  })
+    `;
+    grid.appendChild(card);
+  });
 }
 
 function viewProduct(productId) {
-  const product = products.find((p) => p.id === productId)
-  if (!product) return
+  const product = products.find((p) => p.id === productId);
+  if (!product) return;
 
-  const detailContainer = document.getElementById("productDetailContainer")
-  if (!detailContainer) return
+  const detailContainer = document.getElementById("productDetailContainer");
+  if (!detailContainer) return;
 
   detailContainer.innerHTML = `
     <div class="product-detail-wrapper">
       <div class="product-detail-image">
-        <img src="${product.image}" alt="${product.name}">
+        <img src="${product.image}" alt="${escapeHtml(product.name)}">
       </div>
       <div class="product-detail-info">
-        <h1>${product.name}</h1>
+        <h1>${escapeHtml(product.name)}</h1>
         <div class="product-detail-meta">
           <span class="detail-badge">Model: ${product.model.toUpperCase()}</span>
-          <span class="detail-badge">Category: ${product.category}</span>
+          <span class="detail-badge">Category: ${escapeHtml(product.category)}</span>
         </div>
         <p class="product-detail-price">₱${product.price.toLocaleString("en-PH")}</p>
-        <p class="product-detail-description">${product.description}</p>
-        <div>
-          <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Specifications</h4>
-          <ul style="list-style: none; margin-bottom: 2rem;">
-            ${product.specs
-              .map((spec) => `<li style="margin-bottom: 0.5rem; color: var(--text-light);">✓ ${spec}</li>`)
-              .join("")}
-          </ul>
-        </div>
+        <p class="product-detail-description">${escapeHtml(product.description)}</p>
+
+        <h4 class="specs-title">Specifications</h4>
+        <ul class="specs-list">
+          ${product.specs.map((s) => `<li>✓ ${escapeHtml(s)}</li>`).join("")}
+        </ul>
+
         <div class="quantity-selector">
           <label for="quantity">Quantity:</label>
           <input type="number" id="quantity" min="1" max="99" value="1" aria-label="Product quantity">
         </div>
-        <button class="btn btn-primary add-to-cart-btn" onclick="addToCart(${productId})">Add to Cart</button>
+
+        <button class="btn btn-primary add-to-cart-btn" type="button" onclick="addToCart(${productId})">
+          Add to Cart
+        </button>
       </div>
     </div>
-  `
+  `;
 
-  const breadcrumb = document.getElementById("productBreadcrumb")
-  if (breadcrumb) breadcrumb.textContent = product.name
+  const breadcrumb = document.getElementById("productBreadcrumb");
+  if (breadcrumb) breadcrumb.textContent = product.name;
 
-  navigatePage("product-details")
+  navigatePage("product-details");
 }
 
 function applyFilters() {
-  const model = modelFilter ? modelFilter.value : ""
-  const category = categoryFilter ? categoryFilter.value : ""
+  const model = modelFilterEl ? modelFilterEl.value : "";
+  const category = categoryFilterEl ? categoryFilterEl.value : "";
+  const query = searchInputEl ? searchInputEl.value.trim().toLowerCase() : "";
 
   filteredProducts = products.filter((product) => {
-    return (!model || product.model === model) && (!category || product.category === category)
-  })
+    const matchModel = !model || product.model === model;
+    const matchCategory = !category || product.category === category;
+    const matchQuery =
+      !query ||
+      product.name.toLowerCase().includes(query) ||
+      product.description.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query) ||
+      product.model.toLowerCase().includes(query);
 
-  displayProducts()
+    return matchModel && matchCategory && matchQuery;
+  });
+
+  displayProducts();
 }
 
-// Cart Functions
+/* =========================
+   CART
+========================= */
 function quickAddToCart(productId) {
-  addProductToCart(productId, 1)
-  showNotification("Added to cart!")
+  addProductToCart(productId, 1);
+  showToast("Added to cart!");
 }
 
 function addToCart(productId) {
-  const qtyEl = document.getElementById("quantity")
-  const quantity = Number.parseInt(qtyEl ? qtyEl.value : "1", 10) || 1
-  addProductToCart(productId, quantity)
-  showNotification("Added to cart!")
+  const qtyEl = document.getElementById("quantity");
+  const quantity = Number.parseInt(qtyEl ? qtyEl.value : "1", 10) || 1;
+
+  if (quantity < 1) {
+    showToast("Quantity must be at least 1", "error");
+    return;
+  }
+
+  addProductToCart(productId, quantity);
+  showToast("Added to cart!");
 }
 
 function addProductToCart(productId, quantity) {
-  const product = products.find((p) => p.id === productId)
-  if (!product) return
+  const product = products.find((p) => p.id === productId);
+  if (!product) return;
 
-  const existingItem = cart.find((item) => item.id === productId)
+  const existingItem = cart.find((item) => item.id === productId);
 
   if (existingItem) {
-    existingItem.quantity += quantity
+    existingItem.quantity += quantity;
   } else {
-    cart.push({ ...product, quantity })
+    cart.push({ ...product, quantity });
   }
 
-  saveCart()
-  updateCartCount()
+  saveCart();
+  updateCartCount();
+  updateCheckoutSummary();
 }
 
 function removeFromCart(productId) {
-  cart = cart.filter((item) => item.id !== productId)
-  saveCart()
-  updateCartDisplay()
-  updateCartCount()
-  updateCheckoutSummary()
+  const item = cart.find((i) => i.id === productId);
+  cart = cart.filter((item) => item.id !== productId);
+
+  saveCart();
+  updateCartDisplay();
+  updateCartCount();
+  updateCheckoutSummary();
+
+  if (item) showToast(`Removed: ${item.name}`);
 }
 
 function updateQuantity(productId, quantity) {
-  const item = cart.find((item) => item.id === productId)
-  if (item) {
-    item.quantity = Math.max(1, quantity)
-    saveCart()
-    updateCartDisplay()
-    updateCheckoutSummary()
-    updateCartCount()
-  }
+  const item = cart.find((item) => item.id === productId);
+  if (!item) return;
+
+  item.quantity = Math.max(1, quantity);
+
+  saveCart();
+  updateCartDisplay();
+  updateCheckoutSummary();
+  updateCartCount();
 }
 
 function openCart() {
-  if (!cartModal) return
-  cartModal.classList.add("active")
-  updateCartDisplay()
+  if (!cartModalEl) return;
+
+  cartModalEl.classList.add("active");
+  cartModalEl.setAttribute("aria-hidden", "false");
+  updateCartDisplay();
 }
 
 function closeCart() {
-  if (!cartModal) return
-  cartModal.classList.remove("active")
+  if (!cartModalEl) return;
+
+  cartModalEl.classList.remove("active");
+  cartModalEl.setAttribute("aria-hidden", "true");
 }
 
 function updateCartDisplay() {
-  const cartItemsContainer = document.getElementById("cartItems")
-  if (!cartItemsContainer) return
+  const cartItemsContainer = document.getElementById("cartItems");
+  if (!cartItemsContainer) return;
 
   if (cart.length === 0) {
     cartItemsContainer.innerHTML = `
       <div class="empty-cart">
-        <i class="fas fa-shopping-cart"></i>
+        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
         <p>Your cart is empty</p>
       </div>
-    `
-    updateCartTotals(0, 0, 0)
-    return
+    `;
+    updateCartTotals(0, 0, 0);
+    return;
   }
 
   cartItemsContainer.innerHTML = cart
-    .map(
-      (item) => `
+    .map((item) => {
+      const minusDisabled = item.quantity <= 1 ? "disabled" : "";
+      return `
         <div class="cart-item">
           <div class="cart-item-image">
-            <img src="${item.image}" alt="${item.name}">
+            <img src="${item.image}" alt="${escapeHtml(item.name)}">
           </div>
           <div class="cart-item-details">
-            <p class="cart-item-name">${item.name}</p>
+            <p class="cart-item-name">${escapeHtml(item.name)}</p>
             <p class="cart-item-price">₱${item.price.toLocaleString("en-PH")}</p>
             <div class="cart-item-quantity">
-              <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-              <span>${item.quantity}</span>
-              <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-              <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+              <button class="quantity-btn" type="button" ${minusDisabled} onclick="updateQuantity(${item.id}, ${
+        item.quantity - 1
+      })" aria-label="Decrease quantity">-</button>
+              <span aria-label="Quantity">${item.quantity}</span>
+              <button class="quantity-btn" type="button" onclick="updateQuantity(${item.id}, ${
+        item.quantity + 1
+      })" aria-label="Increase quantity">+</button>
+
+              <button class="remove-btn" type="button" onclick="removeFromCart(${item.id})" aria-label="Remove item">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
         </div>
-      `,
-    )
-    .join("")
+      `;
+    })
+    .join("");
 
-  calculateCartTotals()
+  calculateCartTotals();
 }
 
 function calculateCartTotals() {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const tax = subtotal * 0.12
-  const total = subtotal + tax
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * 0.12;
+  const total = subtotal + tax;
 
-  updateCartTotals(subtotal, tax, total)
+  updateCartTotals(subtotal, tax, total);
 }
 
 function updateCartTotals(subtotal, tax, total) {
-  const subtotalEl = document.getElementById("subtotal")
-  const taxEl = document.getElementById("tax")
-  const totalEl = document.getElementById("total")
+  const subtotalEl = document.getElementById("subtotal");
+  const taxEl = document.getElementById("tax");
+  const totalEl = document.getElementById("total");
 
-  if (subtotalEl) subtotalEl.textContent = `₱${subtotal.toLocaleString("en-PH")}`
-  if (taxEl) taxEl.textContent = `₱${tax.toLocaleString("en-PH")}`
-  if (totalEl) totalEl.textContent = `₱${total.toLocaleString("en-PH")}`
+  if (subtotalEl) subtotalEl.textContent = `₱${subtotal.toLocaleString("en-PH")}`;
+  if (taxEl) taxEl.textContent = `₱${tax.toLocaleString("en-PH")}`;
+  if (totalEl) totalEl.textContent = `₱${total.toLocaleString("en-PH")}`;
 }
 
 function updateCartCount() {
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0)
-  const countEl = document.getElementById("cartCount")
-  if (countEl) countEl.textContent = count
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const countEl = document.getElementById("cartCount");
+  if (countEl) countEl.textContent = count;
 }
 
 function saveCart() {
-  localStorage.setItem("cart", JSON.stringify(cart))
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-// Checkout Functions
+/* =========================
+   CHECKOUT
+========================= */
 function navigateToCheckout() {
   if (cart.length === 0) {
-    showNotification("Your cart is empty!", "error")
-    return
+    showToast("Your cart is empty!", "error");
+    return;
   }
-  closeCart()
-  navigatePage("checkout")
+  closeCart();
+  navigatePage("checkout");
 }
 
 function updateCheckoutSummary() {
-  const itemsList = document.getElementById("checkoutItemsList")
-  if (!itemsList) return
+  const itemsList = document.getElementById("checkoutItemsList");
+  if (!itemsList) return;
 
-  itemsList.innerHTML = cart
-    .map(
-      (item) => `
-        <div class="checkout-item">
-          <div class="checkout-item-detail">
-            <p class="checkout-item-name">${item.name}</p>
-            <p class="checkout-item-qty">Qty: ${item.quantity}</p>
+  if (cart.length === 0) {
+    itemsList.innerHTML = `<p class="empty-state">No items yet.</p>`;
+  } else {
+    itemsList.innerHTML = cart
+      .map(
+        (item) => `
+          <div class="checkout-item">
+            <div class="checkout-item-detail">
+              <p class="checkout-item-name">${escapeHtml(item.name)}</p>
+              <p class="checkout-item-qty">Qty: ${item.quantity}</p>
+            </div>
+            <p class="checkout-item-price">₱${(item.price * item.quantity).toLocaleString("en-PH")}</p>
           </div>
-          <p class="checkout-item-price">₱${(item.price * item.quantity).toLocaleString("en-PH")}</p>
-        </div>
-      `,
-    )
-    .join("")
-
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const tax = subtotal * 0.12
-  const total = subtotal + tax
-
-  const sEl = document.getElementById("checkoutSubtotal")
-  const tEl = document.getElementById("checkoutTax")
-  const totEl = document.getElementById("checkoutTotal")
-
-  if (sEl) sEl.textContent = `₱${subtotal.toLocaleString("en-PH")}`
-  if (tEl) tEl.textContent = `₱${tax.toLocaleString("en-PH")}`
-  if (totEl) totEl.textContent = `₱${total.toLocaleString("en-PH")}`
-}
-
-function handleCheckoutSubmit(e) {
-  e.preventDefault()
-
-  const firstNameEl = document.getElementById("firstName")
-  const lastNameEl = document.getElementById("lastName")
-  const addressEl = document.getElementById("address")
-  const cityEl = document.getElementById("city")
-
-  const firstName = firstNameEl ? firstNameEl.value.trim() : ""
-  const lastName = lastNameEl ? lastNameEl.value.trim() : ""
-  const address = addressEl ? addressEl.value.trim() : ""
-  const city = cityEl ? cityEl.value.trim() : ""
-
-  const checkoutEmailEl = document.getElementById("checkoutEmail") || document.getElementById("email")
-  const email = checkoutEmailEl ? checkoutEmailEl.value.trim() : ""
-
-  if (!firstName || !lastName || !address || !city) {
-    showNotification("Please fill in all required fields", "error")
-    return
+        `
+      )
+      .join("");
   }
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const total = subtotal * 1.12
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * 0.12;
+  const total = subtotal + tax;
+
+  const sEl = document.getElementById("checkoutSubtotal");
+  const tEl = document.getElementById("checkoutTax");
+  const totEl = document.getElementById("checkoutTotal");
+
+  if (sEl) sEl.textContent = `₱${subtotal.toLocaleString("en-PH")}`;
+  if (tEl) tEl.textContent = `₱${tax.toLocaleString("en-PH")}`;
+  if (totEl) totEl.textContent = `₱${total.toLocaleString("en-PH")}`;
+}
+
+/* =========================
+   CHECKOUT
+========================= */
+function handleCheckoutSubmit(e) {
+  e.preventDefault();
+
+  const firstNameEl = document.getElementById("firstName");
+  const lastNameEl = document.getElementById("lastName");
+  const addressEl = document.getElementById("address");
+  const cityEl = document.getElementById("city");
+
+  const firstName = firstNameEl ? firstNameEl.value.trim() : "";
+  const lastName = lastNameEl ? lastNameEl.value.trim() : "";
+  const address = addressEl ? addressEl.value.trim() : "";
+  const city = cityEl ? cityEl.value.trim() : "";
+
+  // ✅ single email source with fallback
+  const checkoutEmailEl =
+    document.getElementById("checkoutEmail") || document.getElementById("email");
+  const email = checkoutEmailEl ? checkoutEmailEl.value.trim() : "";
+
+  // Basic required fields
+  if (!firstName || !lastName || !address || !city) {
+    // If your project has showNotification, use it; otherwise fall back to toast
+    if (typeof showNotification === "function") {
+      showNotification("Please fill in all required fields", "error");
+    } else {
+      showToast("Please fill in all required fields", "error");
+    }
+    return;
+  }
+
+  const requiredIds = [
+    "firstName",
+    "lastName",
+    "address",
+    "city",
+    "zipcode",
+    "cardName",
+    "cardNumber",
+    "expiry",
+    "cvv",
+  ];
+
+  const missing = validateRequired(requiredIds);
+
+  if (missing.length > 0) {
+    showToast("Please fill in all required fields", "error");
+    const firstMissing = document.getElementById(missing[0]);
+    if (firstMissing) firstMissing.focus();
+    return;
+  }
+
+  // Totals: subtotal + 12% tax (consistent with cart display)
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * 0.12;
+  const total = subtotal + tax;
 
   const orderData = {
     orderNumber: "YMP-" + Date.now(),
     date: new Date().toLocaleDateString(),
-    items: cart.length,
+    items: cart.reduce((sum, i) => sum + i.quantity, 0),
     total: total.toFixed(2),
     email,
-  }
+  };
 
-  cart = []
-  saveCart()
-  updateCartCount()
+  // Clear cart + UI
+  cart = [];
+  saveCart();
+  updateCartCount();
+  updateCheckoutSummary();
+  updateCartDisplay();
 
-  const successDetails = document.getElementById("successDetails")
+  // Show success summary
+  const successDetails = document.getElementById("successDetails");
   if (successDetails) {
     successDetails.innerHTML = `
       <div class="success-detail-row">
@@ -618,79 +763,167 @@ function handleCheckoutSubmit(e) {
         <span class="success-detail-label">Total:</span>
         <span class="success-detail-value">₱${orderData.total}</span>
       </div>
-    `
+    `;
   }
 
-  navigatePage("success")
+  showToast("Purchase completed successfully!");
+  if (checkoutFormEl) checkoutFormEl.reset();
+
+  navigatePage("success");
 }
 
-// Form Handling
+/* =========================
+   CONTACT
+========================= */
 function handleContactSubmit(e) {
-  e.preventDefault()
+  e.preventDefault();
 
-  const nameEl = document.getElementById("name")
-  const subjectEl = document.getElementById("subject")
-  const messageEl = document.getElementById("message")
+  const nameEl = document.getElementById("name");
+  const subjectEl = document.getElementById("subject");
+  const messageEl = document.getElementById("message");
 
-  const contactEmailEl = document.getElementById("contactEmail") || document.getElementById("email")
+  const name = nameEl ? nameEl.value.trim() : "";
+  const subject = subjectEl ? subjectEl.value.trim() : "";
+  const message = messageEl ? messageEl.value.trim() : "";
 
-  const name = nameEl ? nameEl.value.trim() : ""
-  const email = contactEmailEl ? contactEmailEl.value.trim() : ""
-  const subject = subjectEl ? subjectEl.value.trim() : ""
-  const message = messageEl ? messageEl.value.trim() : ""
+  const contactEmailEl =
+    document.getElementById("contactEmail") || document.getElementById("email");
+  const email = contactEmailEl ? contactEmailEl.value.trim() : "";
 
-  if (!name || !email || !subject || !message) {
-    showNotification("Please fill in all fields", "error")
-    return
+  const missing = [];
+  if (!name) missing.push("name");
+  if (!email) missing.push("contactEmail");
+  if (!subject) missing.push("subject");
+  if (!message) missing.push("message");
+
+  clearErrors(["name", "contactEmail", "subject", "message"]);
+  missing.forEach((id) => setError(id));
+
+  if (missing.length > 0) {
+    showToast("Please fill in all fields", "error");
+    const firstMissing = document.getElementById(missing[0]);
+    if (firstMissing) firstMissing.focus();
+    return;
   }
 
-  showNotification("Message sent successfully! We will contact you soon.")
-  if (contactForm) contactForm.reset()
+  showToast("Message sent successfully! We will contact you soon.");
+  if (contactFormEl) contactFormEl.reset();
 }
 
-// Utilities
-function showNotification(message, type = "success") {
-  const notification = document.createElement("div")
+
+/* =========================
+   UTILITIES (TOAST + VALIDATION + FORMATTING)
+========================= */
+let toastTimer = null;
+
+function showToast(message, type = "success") {
+  // If toast exists (recommended)
+  if (toastEl) {
+    toastEl.className = "toast"; // reset
+    toastEl.textContent = message;
+
+    toastEl.classList.add("toast-show");
+    toastEl.classList.add(type === "error" ? "toast-error" : "toast-success");
+
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove("toast-show");
+    }, 2500);
+
+    return;
+  }
+
+  // Fallback (if user didn't add toast)
+  const notification = document.createElement("div");
   notification.style.cssText = `
     position: fixed;
     top: 80px;
     right: 20px;
     padding: 1rem 1.5rem;
-    background-color: ${type === "error" ? "var(--danger-color)" : "var(--success-color)"};
+    background-color: ${type === "error" ? "#dc3545" : "#28a745"};
     color: white;
     border-radius: 6px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     z-index: 2000;
-    animation: slideIn 0.3s ease;
-  `
-  notification.textContent = message
-  document.body.appendChild(notification)
-
-  setTimeout(() => {
-    notification.style.animation = "slideOut 0.3s ease"
-    setTimeout(() => notification.remove(), 300)
-  }, 3000)
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => notification.remove(), 2500);
 }
 
-// Add animation styles
-const style = document.createElement("style")
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(400px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+function validateRequired(ids) {
+  const missing = [];
+  clearErrors(ids);
+
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const val = el.value.trim();
+    if (!val) {
+      missing.push(id);
+      setError(id);
+    }
+  });
+
+  return missing;
+}
+
+function setError(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add("input-error");
+}
+
+function clearErrors(ids) {
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("input-error");
+  });
+}
+
+function addLiveValidation(formEl) {
+  formEl.querySelectorAll("input, textarea, select").forEach((input) => {
+    input.addEventListener("input", () => {
+      if (input.value.trim()) input.classList.remove("input-error");
+    });
+  });
+}
+
+function addPaymentFormatters() {
+  const cardNumber = document.getElementById("cardNumber");
+  const expiry = document.getElementById("expiry");
+  const cvv = document.getElementById("cvv");
+
+  if (cardNumber) {
+    cardNumber.addEventListener("input", () => {
+      let v = cardNumber.value.replace(/\D/g, "").slice(0, 16);
+      v = v.replace(/(\d{4})(?=\d)/g, "$1 ");
+      cardNumber.value = v;
+    });
   }
 
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(400px); opacity: 0; }
+  if (expiry) {
+    expiry.addEventListener("input", () => {
+      let v = expiry.value.replace(/\D/g, "").slice(0, 4);
+      if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+      expiry.value = v;
+    });
   }
 
-  .no-products {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 3rem;
-    color: var(--text-light);
-    font-size: 1.1rem;
+  if (cvv) {
+    cvv.addEventListener("input", () => {
+      cvv.value = cvv.value.replace(/\D/g, "").slice(0, 4);
+    });
   }
-`
-document.head.appendChild(style)
+}
+
+// Prevent basic HTML injection in product rendering
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
