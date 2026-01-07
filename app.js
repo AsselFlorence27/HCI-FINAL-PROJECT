@@ -107,7 +107,7 @@ const products = [
     model: "aerox",
     category: "electrical",
     price: 6800,
-    image: "public/stage-6-intake-manifold.jpg",
+    image: "public/stage-6-intake-manifold.jpg", // matches your file name
     description: "High voltage ignition coil from Stage6. Improves combustion efficiency for better performance.",
     specs: ["Output Voltage: 40kV", "Spark Gap: Optimized", "Cold Start: Enhanced"],
   },
@@ -161,7 +161,7 @@ const products = [
     model: "nmax",
     category: "suspension",
     price: 10500,
-    image: "public/YSS Rear Adjustable Shock.jpg",
+    image: "public/yss-rear-adjustable-shock.jpg", // matches your file name
     description: "Fully adjustable rear shock from Thai manufacturer YSS. Perfect for custom tuning.",
     specs: ["Type: Monoshock", "Travel: 130mm", "Damping: 3-stage"],
   },
@@ -173,7 +173,7 @@ const products = [
     model: "nmax",
     category: "brakes",
     price: 3500,
-    image: "public/EBC SV Brake Pads.jpg",
+    image: "public/ebc-sv-brake-pads.jpg",
     description: "Premium semi-metallic brake pads from EBC. Low dust and excellent heat dissipation.",
     specs: ["Type: Semi-Metallic", "Friction: 0.62", "Set of 2 Pairs"],
   },
@@ -183,7 +183,7 @@ const products = [
     model: "nmax",
     category: "brakes",
     price: 4200,
-    image: "public/Stainless Steel Brake Line Kit.jpg",
+    image: "public/stainless-steel-brake-line-kit.jpg",
     description: "Braided stainless steel brake lines. Better feedback and feel with reduced brake fade.",
     specs: ["Material: Stainless Steel Braid", "Length: Adjustable", "Fittings: Included"],
   },
@@ -195,7 +195,7 @@ const products = [
     model: "nmax",
     category: "body",
     price: 6800,
-    image: "public/LED Taillight Cluster.png",
+    image: "public/led-taillight-cluster.png",
     description: "Modern LED taillight cluster. Better visibility and stylish appearance compared to stock.",
     specs: ["Type: Full LED", "Color: Red", "Brightness: 1200 lm"],
   },
@@ -205,7 +205,7 @@ const products = [
     model: "nmax",
     category: "body",
     price: 9800,
-    image: "public/Street Racer Fairing Set.jpg",
+    image: "public/street-racer-fairing-set.jpg",
     description: "Complete fairing set with aggressive street racer design. Includes windshield and side panels.",
     specs: ["Material: ABS Plastic", "Color: Black with Red Accents", "Installation: Easy"],
   },
@@ -217,7 +217,7 @@ const products = [
     model: "nmax",
     category: "electrical",
     price: 11500,
-    image: "public/HID Xenon Headlight Kit.jpg",
+    image: "public/hid-xenon-headlight-kit.jpg",
     description: "High-intensity discharge xenon headlight kit. Up to 3x brighter than halogen bulbs.",
     specs: ["Color: 5000K White", "Brightness: 3200 lm", "Ballast: Included"],
   },
@@ -576,8 +576,6 @@ function handleCheckoutSubmit(e) {
   const address = addressEl ? addressEl.value.trim() : ""
   const city = cityEl ? cityEl.value.trim() : ""
 
-  // NOTE: If you have TWO different email inputs (contact + checkout),
-  // rename checkout one in HTML to id="checkoutEmail" (recommended).
   const checkoutEmailEl = document.getElementById("checkoutEmail") || document.getElementById("email")
   const email = checkoutEmailEl ? checkoutEmailEl.value.trim() : ""
 
@@ -634,8 +632,6 @@ function handleContactSubmit(e) {
   const subjectEl = document.getElementById("subject")
   const messageEl = document.getElementById("message")
 
-  // NOTE: If you have TWO different email inputs (contact + checkout),
-  // rename contact one in HTML to id="contactEmail" (recommended).
   const contactEmailEl = document.getElementById("contactEmail") || document.getElementById("email")
 
   const name = nameEl ? nameEl.value.trim() : ""
